@@ -44,10 +44,10 @@ jobs:
     - name: Generate device tree
       run: |
         mkdir -p device_tree_output
+        ls
         python3 -m twrpdtgen \
-          -i recovery.img \
           -o device_tree_output \
-          
+          recovery.img
         
     - name: Compress device tree
       run: |
