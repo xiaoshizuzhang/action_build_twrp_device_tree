@@ -32,29 +32,23 @@ jobs:
           zip \
           unzip
         
-    - name: Install TWRP generator
-      run: |
-        pip3 install twrpdtgen==2.3.0
+ 
         
     - name: Download recovery image
       run: |
-        wget -O recovery.img "${{ github.event.inputs.IMG_URL }}"
-        file recovery.img || true  # Display file info for debugging
+       mkdir twrp
+        cd twrp
+        repo init -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-8.1
+        repo sync
+        git clone https://github.com/XRedCubeX/twrp_meizu_m2note.git -b twrp-8.1 device/meizu/m2note
+        git clone https://github.com/XRedCubeX/android_kernel_m2note -b o-8.1 kernel/meizu/m2note
+        export ALLOW_MISSING_DEPENDENCIES=true
+        . build/envsetup.sh
+        lunch omni_m2note-eng
+        mka recoveryimage
       
-    - name: Generate device tree
-      run: |
-        mkdir -p device_tree_output
-        ls
-        python3 -m twrpdtgen \
-          -o device_tree_output \
-          recovery.img
-        
-    - name: Compress device tree
-      run: |
-        cd device_tree_output
-        zip -r ../DeviceTree_${{ github.run_number }}.zip .
-        cd ..
-        
+    
+
     - name: Create release with device tree
       uses: softprops/action-gh-release@v1
       with:
